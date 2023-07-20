@@ -146,7 +146,6 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             int bytes;
             try {
                 System.out.println("input available"+input.available());
-                if(  input.available() > 0){
                     while (true) {
                         System.out.print("buffer while");
                         try {
@@ -161,9 +160,8 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
                             System.out.print("buffer"+ Arrays.toString(mmBuffer));
                         }
                     }
-                }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getMessage());
             }
 
             // Make sure output stream is closed
