@@ -111,6 +111,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         private final BluetoothSocket socket;
         private final InputStream input;
         private final OutputStream output;
+        private byte[] mmBuffer;
         private boolean requestedClosing = false;
         
         ConnectionThread(BluetoothSocket socket) throws IOException {
@@ -140,23 +141,29 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         /// Thread main code
 
         public void run() {
-            System.out.print("buffer read start");
-            byte[] buffer = new byte[1024];
+            Log.i(TAG, "BEGIN BT Monitor");
+            mmBuffer = new byte[1024];
             int bytes;
-
-            while (true) {
-                System.out.print("buffer while");
-                try {
-                    bytes = input.read(buffer);
-                    System.out.print("bytes:"+bytes);
-                    onRead(Arrays.copyOf(buffer, bytes));
-                } catch (IOException e) {
-                    Log.d(TAG, "Input stream was disconnected", e);
-                    // `input.read` throws when closed by remote device
-                    break;
-                } finally {
-                    System.out.print("buffer"+ Arrays.toString(buffer));
+            try {
+                System.out.println("input available"+input.available());
+                if(  input.available() > 0){
+                    while (true) {
+                        System.out.print("buffer while");
+                        try {
+                            bytes = input.read(mmBuffer);
+                            System.out.print("bytes:"+bytes);
+                            onRead(Arrays.copyOf(mmBuffer, bytes));
+                        } catch (IOException e) {
+                            Log.d(TAG, "Input stream was disconnected", e);
+                            // `input.read` throws when closed by remote device
+                            break;
+                        } finally {
+                            System.out.print("buffer"+ Arrays.toString(mmBuffer));
+                        }
+                    }
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
 
             // Make sure output stream is closed
