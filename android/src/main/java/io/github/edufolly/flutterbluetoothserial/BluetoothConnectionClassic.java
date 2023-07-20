@@ -113,7 +113,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         private final OutputStream output;
         private boolean requestedClosing = false;
         
-        ConnectionThread(BluetoothSocket socket) {
+        ConnectionThread(BluetoothSocket socket) throws IOException {
             this.socket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -124,7 +124,9 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             } catch (IOException e) {
                 System.out.println("connection socket status"+ socket.isConnected()+" ");
             }
-
+            if(tmpIn !=null){
+                System.out.println(tmpIn.available());
+            }
             this.input = tmpIn;
             this.output = tmpOut;
         }
@@ -135,7 +137,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             byte[] buffer = new byte[1024];
             int bytes;
 
-            while (!requestedClosing) {
+            while (true) {
                 try {
                     bytes = input.read(buffer);
                     System.out.print(bytes);
