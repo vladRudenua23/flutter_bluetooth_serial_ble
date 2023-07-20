@@ -125,14 +125,15 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
                 System.out.println("connection socket status"+ socket.isConnected()+" ");
             }
             if(tmpIn !=null){
-                System.out.println(tmpIn.available());
+                System.out.println("tmp"+tmpIn.available());
             }
             this.input = tmpIn;
             this.output = tmpOut;
         }
 
         /// Thread main code
-        public void run() {
+
+       @Override public void run() {
             System.out.print("buffer read start");
             byte[] buffer = new byte[1024];
             int bytes;
