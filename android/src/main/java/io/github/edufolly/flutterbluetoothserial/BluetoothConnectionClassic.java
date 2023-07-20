@@ -61,7 +61,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             System.out.println("methods are null");
             throw new Exception("method are null");
         }
-        socket = (BluetoothSocket) method.invoke(device, 1);//
+        socket = (BluetoothSocket) method.invoke(device, 3);//
 
         // Cancel discovery, even though we didn't start it
         if(bluetoothAdapter.isDiscovering()) {
