@@ -144,24 +144,20 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             Log.i(TAG, "BEGIN BT Monitor");
             mmBuffer = new byte[1024];
             int bytes;
-            try {
-                System.out.println("input available"+input.available());
-                    while (true) {
-                        System.out.print("buffer while");
-                        try {
-                            bytes = input.read(mmBuffer);
-                            System.out.print("bytes:"+bytes);
-                            onRead(Arrays.copyOf(mmBuffer, bytes));
-                        } catch (IOException e) {
-                            Log.d(TAG, "Input stream was disconnected", e);
-                            // `input.read` throws when closed by remote device
-                            break;
-                        } finally {
-                            System.out.print("buffer"+ Arrays.toString(mmBuffer));
-                        }
-                    }
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+            System.out.println("input available try to start while");
+            while (true) {
+                System.out.print("buffer while");
+                try {
+                    bytes = input.read(mmBuffer);
+                    System.out.print("bytes:"+bytes);
+                    onRead(Arrays.copyOf(mmBuffer, bytes));
+                } catch (IOException e) {
+                    Log.d(TAG, "Input stream was disconnected", e);
+                    // `input.read` throws when closed by remote device
+                    break;
+                } finally {
+                    System.out.print("buffer"+ Arrays.toString(mmBuffer));
+                }
             }
 
             // Make sure output stream is closed
