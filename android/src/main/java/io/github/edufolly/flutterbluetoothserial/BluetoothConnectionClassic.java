@@ -1,5 +1,7 @@
 package io.github.edufolly.flutterbluetoothserial;
 
+import static android.content.ContentValues.TAG;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,6 +14,7 @@ import java.util.function.Consumer;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 /// Universal Bluetooth serial connection class (for Java)
 public class BluetoothConnectionClassic extends BluetoothConnectionBase
@@ -55,11 +58,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
          System.out.println(e.getMessage());
         }
 
-        try {
-            socket = device.createRfcommSocketToServiceRecord(uuid);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            System.out.println(e.getMessage());
-        }
+        socket = device.createRfcommSocketToServiceRecord(uuid);
 
 
         // Cancel discovery, even though we didn't start it
