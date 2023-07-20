@@ -42,7 +42,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
     // @TODO . `connect` parameter: timeout
     // @TODO . `connect` other methods than `createRfcommSocketToServiceRecord`, including hidden one raw `createRfcommSocket` (on channel).
     // @TODO ? how about turning it into factoried?
-    public void connect(String address, UUID uuid) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void connect(String address, UUID uuid) throws Exception {
         if (isConnected()) {
             throw new IOException("already connected");
         }
@@ -57,8 +57,9 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         } catch (NoSuchMethodException e) {
          System.out.println(e.getMessage());
         }
-        if (method != null){
+        if (method == null){
             System.out.println("methods are null");
+            throw new Exception("method are null");
         }
         socket = (BluetoothSocket) method.invoke(device, 1);//
 
@@ -86,7 +87,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         }
     }
 
-    public void connect(String address) throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public void connect(String address) throws Exception {
         connect(address, DEFAULT_UUID);
     }
     
