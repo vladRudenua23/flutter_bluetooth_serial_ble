@@ -55,9 +55,9 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
 
         }
         if(socket.isConnected()){
-            System.out.println(" == connected ===")
+            System.out.println(" == connected ===");
         }else {
-            System.out.println(" == not connected ===")
+            System.out.println(" == not connected ===");
         }
 
         // Cancel discovery, even though we didn't start it
