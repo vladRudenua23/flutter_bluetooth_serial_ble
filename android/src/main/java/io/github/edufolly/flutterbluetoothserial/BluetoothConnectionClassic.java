@@ -129,7 +129,6 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             }
             this.input = tmpIn;
             this.output = tmpOut;
-            run();
         }
 
         /// Thread main code
