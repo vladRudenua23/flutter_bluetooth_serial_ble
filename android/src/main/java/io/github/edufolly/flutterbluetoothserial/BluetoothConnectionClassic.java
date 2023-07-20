@@ -57,9 +57,10 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         } catch (NoSuchMethodException e) {
          System.out.println(e.getMessage());
         }
-
-        socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-
+        if (method != null){
+            System.out.println("methods are null");
+        }
+        socket = (BluetoothSocket) method.invoke(device, 1);//
 
         // Cancel discovery, even though we didn't start it
         if(bluetoothAdapter.isDiscovering()) {
