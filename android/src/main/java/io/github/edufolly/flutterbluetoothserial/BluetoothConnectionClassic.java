@@ -65,8 +65,17 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         // Cancel discovery, even though we didn't start it
         bluetoothAdapter.cancelDiscovery();
 
-        socket.connect();
-
+        try {
+            socket.connect();
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+            throw  e;
+        }
+        if(socket.isConnected()){
+            System.out.println(" == connected ===");
+        }else {
+            System.out.println(" == not connected ===");
+        }
         connectionThread = new ConnectionThread(socket);
         connectionThread.start();
     }
