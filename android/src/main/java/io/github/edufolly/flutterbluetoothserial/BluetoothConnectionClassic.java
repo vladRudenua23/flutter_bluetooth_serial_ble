@@ -43,41 +43,47 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         if (isConnected()) {
             throw new IOException("already connected");
         }
-
+        BluetoothSocket socket = null;
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             throw new IOException("device not found");
         }
-
-        BluetoothSocket socket = null;
-        Method m = device.getClass().getMethod("createRfcommSocket",new Class[] { int.class });
-        socket = (BluetoothSocket) m.invoke(device, 10);/// @TODO . introduce ConnectionMethod
-        if (socket == null) {
-            throw new IOException("socket connection not established");
-
+        Method method = null;
+        try {
+            method =  device.getClass().getMethod("createRfcommSocket", int.class);
+        } catch (NoSuchMethodException e) {
+         System.out.println(e.getMessage());
         }
-        if(socket.isConnected()){
-            System.out.println(" == connected ===");
-        }else {
-            System.out.println(" == not connected ===");
-        }
-
-        // Cancel discovery, even though we didn't start it
-        bluetoothAdapter.cancelDiscovery();
 
         try {
-            socket.connect();
-        }catch (IOException e){
+            socket = (BluetoothSocket) method.invoke(device, 1);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             System.out.println(e.getMessage());
-            throw  e;
         }
-        if(socket.isConnected()){
-            System.out.println(" == connected ===");
+
+
+        // Cancel discovery, even though we didn't start it
+        if(bluetoothAdapter.isDiscovering()) {
+            bluetoothAdapter.cancelDiscovery();
+
+        }
+        if(socket == null){
+            System.out.println("socket are null");
         }else {
-            System.out.println(" == not connected ===");
+            try {
+                socket.connect();
+            }catch (IOException e){
+                System.out.println(e.getMessage());
+                throw  e;
+            }
+            if(socket.isConnected()){
+                System.out.println(" == connected ===");
+            }else {
+                System.out.println(" == not connected ===");
+            }
+            connectionThread = new ConnectionThread(socket);
+            connectionThread.start();
         }
-        connectionThread = new ConnectionThread(socket);
-        connectionThread.start();
     }
 
     public void connect(String address) throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
