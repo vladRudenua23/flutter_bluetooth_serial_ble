@@ -48,7 +48,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         }
 
         BluetoothSocket socket = null;
-        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethodTODO . introduce ConnectionMethod
+         socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethodTODO . introduce ConnectionMethod
         if (socket == null) {
             throw new IOException("socket connection not established");
         }
