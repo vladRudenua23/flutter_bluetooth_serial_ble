@@ -122,7 +122,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("connection socket status"+ socket.isConnected()+" ");
             }
 
             this.input = tmpIn;
