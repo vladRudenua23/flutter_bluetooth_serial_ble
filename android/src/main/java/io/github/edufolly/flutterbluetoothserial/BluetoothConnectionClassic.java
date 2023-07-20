@@ -53,9 +53,9 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             throw new IOException("socket connection not established");
         }
         if(socket.isConnected()){
-            System.out.println(" == connected ===")
+            System.out.println(" == connected ===");
         }else {
-            System.out.println(" == not connected ===")
+            System.out.println(" == not connected ===");
         }
 
         // Cancel discovery, even though we didn't start it
