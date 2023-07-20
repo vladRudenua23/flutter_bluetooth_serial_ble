@@ -58,7 +58,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
          System.out.println(e.getMessage());
         }
 
-        socket = device.createRfcommSocketToServiceRecord(uuid);
+        socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 
 
         // Cancel discovery, even though we didn't start it
