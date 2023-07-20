@@ -120,11 +120,17 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
 
             try {
                 tmpIn = socket.getInputStream();
-                tmpOut = socket.getOutputStream();
+
             } catch (IOException e) {
-                System.out.println("connection socket status"+ socket.isConnected()+" ");
+                System.out.println("connection input "+e.getMessage());
             }
-            if(tmpIn !=null){
+            try {
+                tmpOut = socket.getOutputStream();
+            }catch (IOException e){
+
+                System.out.println("connection output "+e.getMessage());
+
+            }            if(tmpIn !=null){
                 System.out.println("tmp"+tmpIn.available());
             }
             this.input = tmpIn;
@@ -145,10 +151,11 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
                     System.out.print("bytes:"+bytes);
                     onRead(Arrays.copyOf(buffer, bytes));
                 } catch (IOException e) {
-                    System.out.print("ioefdasl;fksd");
                     Log.d(TAG, "Input stream was disconnected", e);
                     // `input.read` throws when closed by remote device
                     break;
+                } finally {
+                    System.out.print("buffer"+ Arrays.toString(buffer));
                 }
             }
 
@@ -182,7 +189,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             try {
                 output.write(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
 
@@ -197,7 +204,10 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             try {
                 output.flush();
             }
-            catch (Exception e) {}
+            catch (Exception e) {
+                System.out.println(e.getMessage());
+
+            }
 
             // Close the connection socket
             if (socket != null) {
@@ -207,7 +217,10 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
 
                     socket.close();
                 }
-                catch (Exception e) {}
+                catch (Exception e) {
+                    System.out.println(e.getMessage());
+
+                }
             }
         }
     }
