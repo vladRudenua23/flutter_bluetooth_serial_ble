@@ -1004,7 +1004,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     };
 
                     if (isLE) {
-                        connection0[0] = new BluetoothConnectionLE(orc, odc, activeContext);
+                        connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
                     } else {
                         connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
                     }
