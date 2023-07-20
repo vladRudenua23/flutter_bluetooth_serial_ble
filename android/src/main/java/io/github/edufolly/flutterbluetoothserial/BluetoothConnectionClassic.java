@@ -48,14 +48,16 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         }
 
         BluetoothSocket socket = null;
-         socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethodTODO . introduce ConnectionMethod
+        Method m = device.getClass().getMethod("createRfcommSocket",new Class[] { int.class });
+        socket = (BluetoothSocket) m.invoke(device, 10);/// @TODO . introduce ConnectionMethod
         if (socket == null) {
             throw new IOException("socket connection not established");
+
         }
         if(socket.isConnected()){
-            System.out.println(" == connected ===");
+            System.out.println(" == connected ===")
         }else {
-            System.out.println(" == not connected ===");
+            System.out.println(" == not connected ===")
         }
 
         // Cancel discovery, even though we didn't start it
