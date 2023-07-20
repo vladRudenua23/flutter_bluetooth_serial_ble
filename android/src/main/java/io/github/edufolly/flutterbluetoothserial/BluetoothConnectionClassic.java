@@ -129,11 +129,12 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             }
             this.input = tmpIn;
             this.output = tmpOut;
+            run();
         }
 
         /// Thread main code
 
-       @Override public void run() {
+        public void run() {
             System.out.print("buffer read start");
             byte[] buffer = new byte[1024];
             int bytes;
