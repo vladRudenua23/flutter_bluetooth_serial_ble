@@ -140,7 +140,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             while (true) {
                 try {
                     bytes = input.read(buffer);
-                    System.out.print(bytes);
+                    System.out.print("bytes:"+bytes);
                     onRead(Arrays.copyOf(buffer, bytes));
                 } catch (IOException e) {
                     Log.d(TAG, "Input stream was disconnected", e);
@@ -154,15 +154,17 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
                 try {
                     output.close();
                 }
-                catch (Exception e) {}
+                catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
 
             // Make sure input stream is closed
-            if (input != null) {
-                try {
-                    input.close();
-                }
-                catch (Exception e) {}
+            try {
+                input.close();
+            }
+            catch (Exception e) {
+                System.out.println(e.getMessage());
             }
 
             // Callback on disconnected, with information which side is closing
