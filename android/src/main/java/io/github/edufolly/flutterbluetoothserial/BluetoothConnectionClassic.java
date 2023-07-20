@@ -56,7 +56,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         }
 
         try {
-            socket = (BluetoothSocket) method.invoke(device, 1);
+            socket = device.createRfcommSocketToServiceRecord(uuid);
         } catch (IllegalAccessException | InvocationTargetException e) {
             System.out.println(e.getMessage());
         }
@@ -73,7 +73,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             try {
                 socket.connect();
             }catch (IOException e){
-                System.out.println(e.getMessage());
+                Log.e(TAG, "Could not close the client socket", e);
                 throw  e;
             }
             if(socket.isConnected()){
@@ -140,6 +140,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
                     System.out.print(bytes);
                     onRead(Arrays.copyOf(buffer, bytes));
                 } catch (IOException e) {
+                    Log.d(TAG, "Input stream was disconnected", e);
                     // `input.read` throws when closed by remote device
                     break;
                 }

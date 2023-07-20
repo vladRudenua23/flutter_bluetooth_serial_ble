@@ -989,6 +989,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     BluetoothConnectionBase.OnDisconnectedCallback odc = new BluetoothConnectionBase.OnDisconnectedCallback() {
                         @Override
                         public void onDisconnected(boolean byRemote) {
+                            System.out.println("");
                             activity.runOnUiThread(() -> {
                                 if (byRemote) {
                                     Log.d(TAG, "onDisconnected by remote (id: " + id + ")");
