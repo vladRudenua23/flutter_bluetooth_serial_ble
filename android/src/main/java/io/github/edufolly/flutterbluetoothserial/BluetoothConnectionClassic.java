@@ -130,13 +130,14 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
 
         /// Thread main code
         public void run() {
+            System.out.print("buffer read start");
             byte[] buffer = new byte[1024];
             int bytes;
 
             while (!requestedClosing) {
                 try {
                     bytes = input.read(buffer);
-
+                    System.out.print(bytes);
                     onRead(Arrays.copyOf(buffer, bytes));
                 } catch (IOException e) {
                     // `input.read` throws when closed by remote device
