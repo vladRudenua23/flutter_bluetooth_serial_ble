@@ -139,11 +139,13 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             int bytes;
 
             while (true) {
+                System.out.print("buffer while");
                 try {
                     bytes = input.read(buffer);
                     System.out.print("bytes:"+bytes);
                     onRead(Arrays.copyOf(buffer, bytes));
                 } catch (IOException e) {
+                    System.out.print("ioefdasl;fksd");
                     Log.d(TAG, "Input stream was disconnected", e);
                     // `input.read` throws when closed by remote device
                     break;
