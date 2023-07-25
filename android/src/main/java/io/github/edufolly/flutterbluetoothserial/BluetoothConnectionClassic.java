@@ -26,7 +26,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
     protected ConnectionThread connectionThread = null;
 
     public boolean isConnected() {
-        return connectionThread != null && connectionThread.requestedClosing != true;
+        return connectionThread != null && !connectionThread.requestedClosing;
     }
 
 
@@ -62,7 +62,6 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             throw new Exception("method are null");
         }
         socket = (BluetoothSocket) method.invoke(device, 3);//
-
         // Cancel discovery, even though we didn't start it
         if(bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.cancelDiscovery();
@@ -74,6 +73,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             try {
                 socket.connect();
             }catch (IOException e){
+                System.out.println(" == IOException e ===");
                 Log.e(TAG, "Could not close the client socket", e);
                 throw  e;
             }
