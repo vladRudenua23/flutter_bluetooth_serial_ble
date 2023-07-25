@@ -226,7 +226,6 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
 
                             case 4: //case BluetoothDevice.PAIRING_VARIANT_DISPLAY_PASSKEY: // @TODO , Symbol not found?
                                 // This pairing method requires to enter the generated and displayed pairing key
-                                // on the remote device. It looks like basic asymmetric cryptography was used.
                             case 5: //case BluetoothDevice.PAIRING_VARIANT_DISPLAY_PIN: // @TODO , Symbol not found?
                                 // Same as previous, but for 4 digit pin.
                             {
