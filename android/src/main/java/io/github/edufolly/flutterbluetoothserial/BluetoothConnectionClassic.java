@@ -43,6 +43,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
     // @TODO . `connect` other methods than `createRfcommSocketToServiceRecord`, including hidden one raw `createRfcommSocket` (on channel).
     // @TODO ? how about turning it into factoried?
     public void connect(String address, UUID uuid) throws Exception {
+        System.out.println("start connecting to bluetooth");
         if (isConnected()) {
             throw new IOException("already connected");
         }
@@ -51,21 +52,10 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         if (device == null) {
             throw new IOException("device not found");
         }
-        Method method = null;
-        try {
-            method =  device.getClass().getMethod("createRfcommSocket", int.class);
-        } catch (NoSuchMethodException e) {
-         System.out.println(e.getMessage());
-        }
-        if (method == null){
-            System.out.println("methods are null");
-            throw new Exception("method are null");
-        }
-        socket = (BluetoothSocket) method.invoke(device, 3);//
+        socket =  device.createRfcommSocketToServiceRecord(DEFAULT_UUID);
         // Cancel discovery, even though we didn't start it
         if(bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.cancelDiscovery();
-
         }
         if(socket == null){
             System.out.println("socket are null");

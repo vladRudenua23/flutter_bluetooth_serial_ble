@@ -544,6 +544,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     ensurePermissions(result::success);
                     break;
 
+
                 case "getState":
                     result.success(bluetoothAdapter.getState());
                     break;

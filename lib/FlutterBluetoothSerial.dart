@@ -81,9 +81,13 @@ class FlutterBluetoothSerial {
   /// Probably results in asking user for confirmation.
   Future<bool?> requestEnable() async =>
       await _methodChannel.invokeMethod('requestEnable');
+
   /// for test
   Future<void> ensurePermissions() async =>
       await _methodChannel.invokeMethod("ensurePermissions");
+
+  Future<bool?> isClassicAvailable() async =>
+      await _methodChannel.invokeMethod("isClassicAvailable");
 
   /// Tries to disable Bluetooth interface (if enabled).
   Future<bool?> requestDisable() async =>
