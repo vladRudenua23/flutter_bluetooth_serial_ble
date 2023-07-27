@@ -53,32 +53,41 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             throw new IOException("device not found");
         }
         socket =  device.createRfcommSocketToServiceRecord(DEFAULT_UUID);
-        // Cancel discovery, even though we didn't start it
-        if(bluetoothAdapter.isDiscovering()) {
-            bluetoothAdapter.cancelDiscovery();
+
+
+        if(socket == null) {
+            throw  new IOException("socket are null");
         }
-        if(socket == null){
-            System.out.println("socket are null");
-        }else {
-            try {
-                socket.connect();
-            }catch (IOException e) {
-                System.out.println(" == IOException e ===");
-                Log.e(TAG, "Could not close the client socket", e);
-                throw e;
-            }
-            if(socket.isConnected()) {
-                System.out.println(" == connected ===");
-            } else {
-                System.out.println(" == not connected ===");
-            }
-            connectionThread = new ConnectionThread(socket);
-            connectionThread.start();
-        }
+        run(socket);
+
     }
 
     public void connect(String address) throws Exception {
         connect(address, DEFAULT_UUID);
+    }
+    private void run(BluetoothSocket mmSocket) throws IOException {
+        Log.e(TAG, "star socket connection", null);
+        if(bluetoothAdapter.isDiscovering()) {
+            bluetoothAdapter.cancelDiscovery();
+        }
+        try {
+            // Connect to the remote device through the socket. This call blocks
+            // until it succeeds or throws an exception.
+            mmSocket.connect();
+        } catch (IOException connectException) {
+            Log.e(TAG, "Could not connect", connectException);
+            cancelSocket(mmSocket);
+            return;
+        }
+        connectionThread = new ConnectionThread(mmSocket);
+        connectionThread.start();
+    }
+    private void cancelSocket(BluetoothSocket mmSocket) {
+        try {
+            mmSocket.close();
+        } catch (IOException e) {
+            Log.e(TAG, "Could not close the client socket", e);
+        }
     }
     
     public void disconnect() {
