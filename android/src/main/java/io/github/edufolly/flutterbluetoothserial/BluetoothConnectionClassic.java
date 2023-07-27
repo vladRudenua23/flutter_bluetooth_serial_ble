@@ -62,14 +62,14 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         }else {
             try {
                 socket.connect();
-            }catch (IOException e){
+            }catch (IOException e) {
                 System.out.println(" == IOException e ===");
                 Log.e(TAG, "Could not close the client socket", e);
-                throw  e;
+                throw e;
             }
-            if(socket.isConnected()){
+            if(socket.isConnected()) {
                 System.out.println(" == connected ===");
-            }else {
+            } else {
                 System.out.println(" == not connected ===");
             }
             connectionThread = new ConnectionThread(socket);

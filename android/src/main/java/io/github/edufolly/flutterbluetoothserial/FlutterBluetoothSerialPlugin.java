@@ -930,7 +930,6 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     }
 
                     boolean isLE = call.hasArgument("isLE") && Boolean.TRUE.equals(call.<Boolean>argument("isLE"));
-
                     String address;
                     try {
                         address = call.argument("address");
@@ -948,7 +947,6 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     int id = ++lastConnectionId;
 
                     EventSink[] readSink = {null};
-
                     // I think this code is to effect disconnection when the plugin is unloaded or something?
                     EventChannel readChannel = new EventChannel(messenger, PLUGIN_NAMESPACE + "/read/" + id);
                     // If canceled by local, disconnects - in other case, by remote, does nothing
@@ -1003,12 +1001,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                             });
                         }
                     };
-
-                    if (isLE) {
-                        connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
-                    } else {
-                        connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
-                    }
+                    connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
                     connection = connection0[0];
                     connections.put(id, connection);
 
@@ -1019,6 +1012,8 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                             connection.connect(address);
                             activity.runOnUiThread(() -> result.success(id));
                         } catch (Exception ex) {
+                            Log.d(TAG, "error connect to address:" + address);
+                            result.error("connect_error", ex.getMessage(), exceptionToString(ex));
                             activity.runOnUiThread(() -> result.error("connect_error", ex.getMessage(), exceptionToString(ex)));
                             connections.remove(id);
                         }
