@@ -1005,15 +1005,13 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     connection = connection0[0];
                     connections.put(id, connection);
 
-                    Log.d(TAG, "Connecting to " + address + " (id: " + id + ")");
-
+                    Log.d(TAG,  "Connecting to " + address + " (id: " + id + ")");
                     AsyncTask.execute(() -> {
                         try {
                             connection.connect(address);
                             activity.runOnUiThread(() -> result.success(id));
                         } catch (Exception ex) {
                             Log.d(TAG, "error connect to address:" + address);
-                            result.error("connect_error", ex.getMessage(), exceptionToString(ex));
                             activity.runOnUiThread(() -> result.error("connect_error", ex.getMessage(), exceptionToString(ex)));
                             connections.remove(id);
                         }
