@@ -908,7 +908,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                        connect.disconnect();
                        result.success(null);
                    }catch (Exception e){
-                       result.error("error", "error inside disconnect method", null);
+                       result.error("error", "error inside disconnect method: "+ e.toString(), null);
                        break;
                    }
                 }
