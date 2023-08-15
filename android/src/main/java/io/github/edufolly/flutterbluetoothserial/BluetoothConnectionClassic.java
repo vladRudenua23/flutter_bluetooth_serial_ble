@@ -91,6 +91,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
     }
     
     public void disconnect() {
+        Log.d(TAG,"disconnect");
         if (isConnected()) {
             connectionThread.cancel();
             connectionThread = null;
