@@ -56,7 +56,6 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
 
     // General Bluetooth
     private BluetoothAdapter bluetoothAdapter;
-    private  BluetoothConnection connect;
 
     // State
     private final BroadcastReceiver stateReceiver;
@@ -227,6 +226,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
 
                             case 4: //case BluetoothDevice.PAIRING_VARIANT_DISPLAY_PASSKEY: // @TODO , Symbol not found?
                                 // This pairing method requires to enter the generated and displayed pairing key
+                                // on the remote device. It looks like basic asymmetric cryptography was used.
                             case 5: //case BluetoothDevice.PAIRING_VARIANT_DISPLAY_PIN: // @TODO , Symbol not found?
                                 // Same as previous, but for 4 digit pin.
                             {
@@ -544,7 +544,6 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                 case "ensurePermissions":
                     ensurePermissions(result::success);
                     break;
-
 
                 case "getState":
                     result.success(bluetoothAdapter.getState());
@@ -903,17 +902,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                 case "isDiscoverable":
                     result.success(bluetoothAdapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
                     break;
-                case "disconnect": {
-                   try {
-                       connect.disconnect();
-                       result.success(null);
-                   }catch (Exception e){
-                       result.error("error", "error inside disconnect method: "+ e.toString(), null);
-                       break;
-                   }
-                }
 
-                    break ;
                 case "requestDiscoverable": {
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 
@@ -940,7 +929,8 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                         break;
                     }
 
-//                    boolean isLE = call.hasArgument("isLE") && Boolean.TRUE.equals(call.<Boolean>argument("isLE"));
+                    boolean isLE = call.hasArgument("isLE") && Boolean.TRUE.equals(call.<Boolean>argument("isLE"));
+
                     String address;
                     try {
                         address = call.argument("address");
@@ -958,6 +948,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     int id = ++lastConnectionId;
 
                     EventSink[] readSink = {null};
+
                     // I think this code is to effect disconnection when the plugin is unloaded or something?
                     EventChannel readChannel = new EventChannel(messenger, PLUGIN_NAMESPACE + "/read/" + id);
                     // If canceled by local, disconnects - in other case, by remote, does nothing
@@ -972,7 +963,6 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                         public void onCancel(Object o) {
                             // If canceled by local, disconnects - in other case, by remote, does nothing
                             connection0[0].disconnect();
-                            connect = null;
 
                             // True dispose
                             AsyncTask.execute(() -> {
@@ -999,7 +989,6 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     BluetoothConnectionBase.OnDisconnectedCallback odc = new BluetoothConnectionBase.OnDisconnectedCallback() {
                         @Override
                         public void onDisconnected(boolean byRemote) {
-                            System.out.println("");
                             activity.runOnUiThread(() -> {
                                 if (byRemote) {
                                     Log.d(TAG, "onDisconnected by remote (id: " + id + ")");
@@ -1013,21 +1002,24 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                             });
                         }
                     };
-                    connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
+
+                    if (isLE) {
+                        connection0[0] = new BluetoothConnectionLE(orc, odc, activeContext);
+                    } else {
+                        connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
+                    }
                     connection = connection0[0];
-                    connect = connection;
                     connections.put(id, connection);
 
-                    Log.d(TAG,  "Connecting to " + address + " (id: " + id + ")");
+                    Log.d(TAG, "Connecting to " + address + " (id: " + id + ")");
+
                     AsyncTask.execute(() -> {
                         try {
                             connection.connect(address);
                             activity.runOnUiThread(() -> result.success(id));
                         } catch (Exception ex) {
-                            Log.d(TAG, "error connect to address:" + address);
                             activity.runOnUiThread(() -> result.error("connect_error", ex.getMessage(), exceptionToString(ex)));
                             connections.remove(id);
-                            connect = null;
                         }
                     });
                     break;

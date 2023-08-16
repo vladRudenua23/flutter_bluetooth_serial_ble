@@ -1,15 +1,14 @@
 package io.github.edufolly.flutterbluetoothserial;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 
 public interface BluetoothConnection {
     public boolean isConnected();
     /// Connects to given device by hardware address
-    public void connect(String address, UUID uuid) throws Exception;
+    public void connect(String address, UUID uuid) throws IOException;
     /// Connects to given device by hardware address (default UUID used)
-    public void connect(String address) throws Exception;
+    public void connect(String address) throws IOException;
     /// Disconnects current session (ignore if not connected)
     public void disconnect();
     /// Writes to connected remote device
