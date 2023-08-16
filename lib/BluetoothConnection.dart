@@ -3,10 +3,8 @@ part of flutter_bluetooth_serial_ble;
 enum ConnectionType {
   CLASSIC,
   BLE,
-
   /// Try BT classic, then on failure try BLE
   AUTO,
-
   /// Try BLE, then on failure try BT classic
   AUTO_BUT_TRY_BLE_FIRST
 }
@@ -29,6 +27,7 @@ class BluetoothConnection {
 
   /// This ID identifies real full `BluetoothConenction` object on platform side code.
   final int? _id;
+
   final EventChannel _readChannel;
   late StreamSubscription<Uint8List> _readStreamSubscription;
   late StreamController<Uint8List> _readStreamController;
@@ -51,34 +50,33 @@ class BluetoothConnection {
   BluetoothConnection._consumeConnectionID(int? id)
       : this._id = id,
         this._readChannel =
-            EventChannel('${FlutterBluetoothSerial.namespace}/read/$id') {
+        EventChannel('${FlutterBluetoothSerial.namespace}/read/$id') {
     _readStreamController = StreamController<Uint8List>();
 
     _readStreamSubscription =
         _readChannel.receiveBroadcastStream().cast<Uint8List>().listen(
-              _readStreamController.add,
-              onError: _readStreamController.addError,
-              onDone: this.close,
-            );
+          _readStreamController.add,
+          onError: _readStreamController.addError,
+          onDone: this.close,
+        );
 
     input = _readStreamController.stream;
     output = _BluetoothStreamSink<Uint8List>(id);
   }
 
   /// Returns connection to given address.
-  static Future<BluetoothConnection> toAddress(String? address,
-      {ConnectionType type = ConnectionType.AUTO}) async {
-    //DUMMY //THINK Expose bc/ble?
+  static Future<BluetoothConnection> toAddress(String? address, {ConnectionType type = ConnectionType.AUTO}) async { //DUMMY //THINK Expose bc/ble?
     switch (type) {
       case ConnectionType.AUTO:
         try {
           return await toAddressBC(address);
         } catch (e, s) {
-          return toAddressBC(address);
+          // Bluetooth classic failed; try BLE
+          return toAddressBLE(address);
         }
       case ConnectionType.AUTO_BUT_TRY_BLE_FIRST:
         try {
-          return await toAddressBC(address);
+          return await toAddressBLE(address);
         } catch (e, s) {
           // BLE failed; try bluetooth classic
           return toAddressBC(address);
@@ -86,15 +84,8 @@ class BluetoothConnection {
       case ConnectionType.CLASSIC:
         return toAddressBC(address);
       case ConnectionType.BLE:
-        return toAddressBC(address);
+        return toAddressBLE(address);
     }
-  }
-
-  static Future<BluetoothConnection> disconnect() async {
-
-    // Sorry for pseudo-factory, but `factory` keyword disallows `Future`.
-    return BluetoothConnection._consumeConnectionID(
-        await FlutterBluetoothSerial._methodChannel.invokeMethod('disconnect'));
   }
 
   static Future<BluetoothConnection> toAddressBLE(String? address) async {
@@ -102,6 +93,7 @@ class BluetoothConnection {
     return BluetoothConnection._consumeConnectionID(await FlutterBluetoothSerial
         ._methodChannel
         .invokeMethod('connect', {"address": address, "isLE": true}));
+
   }
 
   static Future<BluetoothConnection> toAddressBC(String? address) async {
@@ -204,19 +196,19 @@ class _BluetoothStreamSink<Uint8List> extends StreamSink<Uint8List> {
 
   @override
   Future addStream(Stream<Uint8List> stream) => Future(() async {
-        // @TODO ??? `addStream`, "alternating simultaneous addition" problem (read below)
-        // If `onDone` were called some time after last `add` to the stream (what is okay),
-        // this `addStream` function might wait not for the last "own" addition to this sink,
-        // but might wait for last addition at the moment of the `onDone`.
-        // This can happen if user of the library would use another `add` related function
-        // while `addStream` still in-going. We could do something about it, but this seems
-        // not to be so necessary since `StreamSink` specifies that `addStream` should be
-        // blocking for other forms of `add`ition on the sink.
-        var completer = Completer();
-        stream.listen(this.add).onDone(completer.complete);
-        await completer.future;
-        await _chainedFutures; // Wait last* `add` of the stream to be fulfilled
-      });
+    // @TODO ??? `addStream`, "alternating simultaneous addition" problem (read below)
+    // If `onDone` were called some time after last `add` to the stream (what is okay),
+    // this `addStream` function might wait not for the last "own" addition to this sink,
+    // but might wait for last addition at the moment of the `onDone`.
+    // This can happen if user of the library would use another `add` related function
+    // while `addStream` still in-going. We could do something about it, but this seems
+    // not to be so necessary since `StreamSink` specifies that `addStream` should be
+    // blocking for other forms of `add`ition on the sink.
+    var completer = Completer();
+    stream.listen(this.add).onDone(completer.complete);
+    await completer.future;
+    await _chainedFutures; // Wait last* `add` of the stream to be fulfilled
+  });
 
   @override
   Future close() {
@@ -236,20 +228,20 @@ class _BluetoothStreamSink<Uint8List> extends StreamSink<Uint8List> {
   ///
   /// Otherwise, the returned future will complete when either:
   Future get allSent => Future(() async {
-        // Simple `await` can't get job done here, because the `_chainedFutures` member
-        // in one access time provides last Future, then `await`ing for it allows the library
-        // user to add more futures on top of the waited-out Future.
-        Future lastFuture;
-        do {
-          lastFuture = this._chainedFutures;
-          await lastFuture;
-        } while (lastFuture != this._chainedFutures);
+    // Simple `await` can't get job done here, because the `_chainedFutures` member
+    // in one access time provides last Future, then `await`ing for it allows the library
+    // user to add more futures on top of the waited-out Future.
+    Future lastFuture;
+    do {
+      lastFuture = this._chainedFutures;
+      await lastFuture;
+    } while (lastFuture != this._chainedFutures);
 
-        if (this.exception != null) {
-          throw this.exception;
-        }
+    if (this.exception != null) {
+      throw this.exception;
+    }
 
-        this._chainedFutures =
-            Future.value(); // Just in case if Dart VM is retarded
-      });
+    this._chainedFutures =
+        Future.value(); // Just in case if Dart VM is retarded
+  });
 }
