@@ -70,10 +70,10 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
     private final BroadcastReceiver discoveryReceiver;
 
     // Connections
-    /// Contains all active connections. Maps ID of the connection with plugin data channels. 
+    /// Contains all active connections. Maps ID of the connection with plugin data channels.
     private final SparseArray<io.github.edufolly.flutterbluetoothserial.BluetoothConnection> connections = new SparseArray<io.github.edufolly.flutterbluetoothserial.BluetoothConnection>(2);
 
-    /// Last ID given to any connection, used to avoid duplicate IDs 
+    /// Last ID given to any connection, used to avoid duplicate IDs
     private int lastConnectionId = 0;
     private Activity activity;
     private BinaryMessenger messenger;
@@ -989,7 +989,6 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     BluetoothConnectionBase.OnDisconnectedCallback odc = new BluetoothConnectionBase.OnDisconnectedCallback() {
                         @Override
                         public void onDisconnected(boolean byRemote) {
-                            System.out.println("");
                             activity.runOnUiThread(() -> {
                                 if (byRemote) {
                                     Log.d(TAG, "onDisconnected by remote (id: " + id + ")");
@@ -1005,7 +1004,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                     };
 
                     if (isLE) {
-                        connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
+                        connection0[0] = new BluetoothConnectionLE(orc, odc, activeContext);
                     } else {
                         connection0[0] = new BluetoothConnectionClassic(orc, odc, bluetoothAdapter);
                     }

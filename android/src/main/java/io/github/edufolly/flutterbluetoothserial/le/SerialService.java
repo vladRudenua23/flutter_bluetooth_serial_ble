@@ -156,7 +156,7 @@ public class SerialService extends Service implements SerialListener {
         PendingIntent disconnectPendingIntent = PendingIntent.getBroadcast(this, 1, disconnectIntent, flags);
         PendingIntent restartPendingIntent = PendingIntent.getActivity(this, 1, restartIntent,  flags);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL)
-                    //.setSmallIcon(android.R.drawable.ic_notification)
+                //.setSmallIcon(android.R.drawable.ic_notification)
                 .setColor(0xffd84315)
                 .setContentTitle("//DUMMY appname")
                 .setContentText(socket != null ? "Connected to "+socket.getName() : "Background Service")

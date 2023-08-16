@@ -1,12 +1,8 @@
 package io.github.edufolly.flutterbluetoothserial;
 
-import static android.content.ContentValues.TAG;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -14,7 +10,6 @@ import java.util.function.Consumer;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 /// Universal Bluetooth serial connection class (for Java)
 public class BluetoothConnectionClassic extends BluetoothConnectionBase
@@ -26,7 +21,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
     protected ConnectionThread connectionThread = null;
 
     public boolean isConnected() {
-        return connectionThread != null && !connectionThread.requestedClosing;
+        return connectionThread != null && connectionThread.requestedClosing != true;
     }
 
 
@@ -42,55 +37,34 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
     // @TODO . `connect` parameter: timeout
     // @TODO . `connect` other methods than `createRfcommSocketToServiceRecord`, including hidden one raw `createRfcommSocket` (on channel).
     // @TODO ? how about turning it into factoried?
-    public void connect(String address, UUID uuid) throws Exception {
+    public void connect(String address, UUID uuid) throws IOException {
         if (isConnected()) {
             throw new IOException("already connected");
         }
-        BluetoothSocket socket = null;
+
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             throw new IOException("device not found");
         }
-        Method method = null;
-        try {
-            method =  device.getClass().getMethod("createRfcommSocket", int.class);
-        } catch (NoSuchMethodException e) {
-         System.out.println(e.getMessage());
-        }
-        if (method == null){
-            System.out.println("methods are null");
-            throw new Exception("method are null");
-        }
-        socket = (BluetoothSocket) method.invoke(device, 3);//
-        // Cancel discovery, even though we didn't start it
-        if(bluetoothAdapter.isDiscovering()) {
-            bluetoothAdapter.cancelDiscovery();
 
+        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethod
+        if (socket == null) {
+            throw new IOException("socket connection not established");
         }
-        if(socket == null){
-            System.out.println("socket are null");
-        }else {
-            try {
-                socket.connect();
-            }catch (IOException e){
-                System.out.println(" == IOException e ===");
-                Log.e(TAG, "Could not close the client socket", e);
-                throw  e;
-            }
-            if(socket.isConnected()){
-                System.out.println(" == connected ===");
-            }else {
-                System.out.println(" == not connected ===");
-            }
-            connectionThread = new ConnectionThread(socket);
-            connectionThread.start();
-        }
+
+        // Cancel discovery, even though we didn't start it
+        bluetoothAdapter.cancelDiscovery();
+
+        socket.connect();
+
+        connectionThread = new ConnectionThread(socket);
+        connectionThread.start();
     }
 
-    public void connect(String address) throws Exception {
+    public void connect(String address) throws IOException {
         connect(address, DEFAULT_UUID);
     }
-    
+
     public void disconnect() {
         if (isConnected()) {
             connectionThread.cancel();
@@ -111,52 +85,37 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         private final BluetoothSocket socket;
         private final InputStream input;
         private final OutputStream output;
-        private byte[] mmBuffer;
         private boolean requestedClosing = false;
-        
-        ConnectionThread(BluetoothSocket socket) throws IOException {
+
+        ConnectionThread(BluetoothSocket socket) {
             this.socket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
             try {
                 tmpIn = socket.getInputStream();
-
-            } catch (IOException e) {
-                System.out.println("connection input "+e.getMessage());
-            }
-            try {
                 tmpOut = socket.getOutputStream();
-            }catch (IOException e){
-
-                System.out.println("connection output "+e.getMessage());
-
-            }            if(tmpIn !=null){
-                System.out.println("tmp"+tmpIn.available());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
             this.input = tmpIn;
             this.output = tmpOut;
         }
 
         /// Thread main code
-
         public void run() {
-            Log.i(TAG, "BEGIN BT Monitor");
-            mmBuffer = new byte[1024];
+            byte[] buffer = new byte[1024];
             int bytes;
-            System.out.println("input available try to start while");
-            while (true) {
-                System.out.print("buffer while");
+
+            while (!requestedClosing) {
                 try {
-                    bytes = input.read(mmBuffer);
-                    System.out.print("bytes:"+bytes);
-                    onRead(Arrays.copyOf(mmBuffer, bytes));
+                    bytes = input.read(buffer);
+
+                    onRead(Arrays.copyOf(buffer, bytes));
                 } catch (IOException e) {
-                    Log.d(TAG, "Input stream was disconnected", e);
                     // `input.read` throws when closed by remote device
                     break;
-                } finally {
-                    System.out.print("buffer"+ Arrays.toString(mmBuffer));
                 }
             }
 
@@ -165,17 +124,15 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
                 try {
                     output.close();
                 }
-                catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+                catch (Exception e) {}
             }
 
             // Make sure input stream is closed
-            try {
-                input.close();
-            }
-            catch (Exception e) {
-                System.out.println(e.getMessage());
+            if (input != null) {
+                try {
+                    input.close();
+                }
+                catch (Exception e) {}
             }
 
             // Callback on disconnected, with information which side is closing
@@ -190,7 +147,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             try {
                 output.write(bytes);
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                e.printStackTrace();
             }
         }
 
@@ -205,10 +162,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
             try {
                 output.flush();
             }
-            catch (Exception e) {
-                System.out.println(e.getMessage());
-
-            }
+            catch (Exception e) {}
 
             // Close the connection socket
             if (socket != null) {
@@ -218,10 +172,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
 
                     socket.close();
                 }
-                catch (Exception e) {
-                    System.out.println(e.getMessage());
-
-                }
+                catch (Exception e) {}
             }
         }
     }
