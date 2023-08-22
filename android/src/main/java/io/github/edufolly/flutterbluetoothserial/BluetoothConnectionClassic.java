@@ -3,6 +3,8 @@ package io.github.edufolly.flutterbluetoothserial;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -38,7 +40,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
     // @TODO . `connect` parameter: timeout
     // @TODO . `connect` other methods than `createRfcommSocketToServiceRecord`, including hidden one raw `createRfcommSocket` (on channel).
     // @TODO ? how about turning it into factoried?
-    public void connect(String address, UUID uuid) throws IOException {
+    public void connect(String address, UUID uuid) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if (isConnected()) {
             throw new IOException("already connected");
         }
@@ -63,7 +65,7 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         connectionThread.start();
     }
 
-    public void connect(String address) throws IOException {
+    public void connect(String address) throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         connect(address, DEFAULT_UUID);
     }
 
