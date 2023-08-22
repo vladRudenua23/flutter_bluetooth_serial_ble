@@ -15,6 +15,7 @@ import android.bluetooth.BluetoothSocket;
 public class BluetoothConnectionClassic extends BluetoothConnectionBase
 {
     protected static final UUID DEFAULT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    protected  static  final  int BT_PORT = 1;
 
     protected BluetoothAdapter bluetoothAdapter;
 
@@ -41,13 +42,14 @@ public class BluetoothConnectionClassic extends BluetoothConnectionBase
         if (isConnected()) {
             throw new IOException("already connected");
         }
+        System.out.println("specific port is 1");
 
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             throw new IOException("device not found");
         }
-
-        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid); // @TODO . introduce ConnectionMethod
+        Method m = device.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class});
+        BluetoothSocket socket = (BluetoothSocket) m.invoke(device,BT_PORT);// @TODO . introduce ConnectionMethod
         if (socket == null) {
             throw new IOException("socket connection not established");
         }
