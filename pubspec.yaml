@@ -4,6 +4,7 @@ description: A basic Flutter Bluetooth Serial library
 authors:
   - Eduardo Folly <edufolly@gmail.com>
   - Martin Mauch <martin.mauch@gmail.com>
+  - Vlad Rudenua <rudenua.dev@gmail.com>
   - Patryk Ludwikowski <patryk.ludwikowski.7@gmail.com>
   - Erhannis glued in BLE code from kai-morich's https://github.com/kai-morich/SimpleBluetoothLeTerminal and uploaded it as a new library
 homepage: https://github.com/Erhannis/flutter_bluetooth_serial_ble
@@ -11,7 +12,7 @@ repository: https://github.com/Erhannis/flutter_bluetooth_serial_ble
 issue_tracker: https://github.com/edufolly/flutter_bluetooth_serial/issues
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.14.0 <3.0.0'
   flutter: ">=1.17.0"
 
 dependencies:

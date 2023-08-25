@@ -15,4 +15,20 @@ class BluetoothDiscoveryResult {
       rssi: map['rssi'] ?? 0,
     );
   }
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return (other is BluetoothDiscoveryResult &&
+        other.runtimeType == runtimeType &&
+        other.rssi == rssi &&
+        other.device == device);
+  }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => Object.hash(device, rssi);
+  @override
+  String toString()=>"BluetoothDiscoveryResult(device:$device,rssi: $rssi)";
 }
